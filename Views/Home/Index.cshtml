@@ -1,0 +1,28 @@
+﻿@{
+    ViewData["Title"] = "File to PDF Converter";
+}
+
+<h2>Upload a File to Convert to PDF</h2>
+
+<form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="ConvertToPdf">
+    <div class="form-group">
+        <input type="file" name="uploadedFile" class="form-control" required />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Convert to PDF</button>
+</form>
+
+@if (ViewBag.DownloadLink != null)
+{
+    <br />
+    <div class="alert alert-success">
+        ✅ Conversion successful! <a href="@ViewBag.DownloadLink" class="btn btn-sm btn-success">Download PDF</a>
+    </div>
+}
+@if (ViewBag.Message != null)
+{
+    <br />
+    <div class="alert alert-danger">
+        ❌ @ViewBag.Message
+    </div>
+}

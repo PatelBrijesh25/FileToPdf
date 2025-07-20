@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35806.99 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileToPdfWeb", "FileToPdfWeb.csproj", "{8FC35153-CE2C-5D2B-BF00-86221076006F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8FC35153-CE2C-5D2B-BF00-86221076006F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FC35153-CE2C-5D2B-BF00-86221076006F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FC35153-CE2C-5D2B-BF00-86221076006F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FC35153-CE2C-5D2B-BF00-86221076006F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5E2EFD6F-624F-446A-BCC7-7FB80C6DA4AE}
+	EndGlobalSection
+EndGlobal
