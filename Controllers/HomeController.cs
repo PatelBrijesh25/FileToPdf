@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PdfSharp.Drawing;
+using PdfSharp.Fonts;
 using PdfSharp.Pdf;
 using Excel = Microsoft.Office.Interop.Excel;
 using Word = Microsoft.Office.Interop.Word;
@@ -8,6 +9,14 @@ namespace FileToPdfWeb.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IWebHostEnvironment _env;
+
+        public HomeController(IWebHostEnvironment env)
+        {
+            _env = env;
+            GlobalFontSettings.FontResolver = CustomFontResolver.Instance;
+        }
+
         [HttpGet]
         public IActionResult Index()
         {
@@ -24,23 +33,24 @@ namespace FileToPdfWeb.Controllers
             }
 
             string ext = Path.GetExtension(uploadedFile.FileName).ToLower();
-            string uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-            string outputDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "output");
+            string uploads = Path.Combine(_env.WebRootPath, "uploads");
+            string outputDir = Path.Combine(_env.WebRootPath, "output");
 
             Directory.CreateDirectory(uploads);
             Directory.CreateDirectory(outputDir);
 
-            string inputPath = Path.Combine(uploads, Path.GetFileName(uploadedFile.FileName));
-            using (var stream = new FileStream(inputPath, FileMode.Create))
-            {
-                uploadedFile.CopyTo(stream);
-            }
-
+            string uniqueName = Guid.NewGuid().ToString() + Path.GetExtension(uploadedFile.FileName);
+            string inputPath = Path.Combine(uploads, uniqueName);
             string outputFileName = Path.GetFileNameWithoutExtension(uploadedFile.FileName) + ".pdf";
             string outputPath = Path.Combine(outputDir, outputFileName);
 
             try
             {
+                using (var stream = new FileStream(inputPath, FileMode.Create))
+                {
+                    uploadedFile.CopyTo(stream);
+                }
+
                 switch (ext)
                 {
                     case ".txt":
@@ -65,18 +75,52 @@ namespace FileToPdfWeb.Controllers
                 ViewBag.DownloadLink = "/output/" + outputFileName;
                 return View("Index");
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 ViewBag.Message = ex.Message;
                 return View("Index");
+            }
+            finally
+            {
+                // Schedule deletion of the uploaded file after 5 minutes regardless of outcome
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(TimeSpan.FromMinutes(1));
+                    try
+                    {
+                        if (System.IO.File.Exists(inputPath))
+                            System.IO.File.Delete(inputPath);
+                    }
+                    catch { }
+                });
+
+                // Schedule deletion of output file after 5 minutes
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(TimeSpan.FromMinutes(1));
+                    try
+                    {
+                        if (System.IO.File.Exists(outputPath))
+                            System.IO.File.Delete(outputPath);
+                    }
+                    catch { }
+                });
             }
         }
 
         private void ConvertTxtToPdf(string inputPath, string outputPath)
         {
+            // Ensure font resolver is set once
+            if (GlobalFontSettings.FontResolver == null)
+            {
+                GlobalFontSettings.FontResolver = CustomFontResolver.Instance;
+            }
+
             var pdf = new PdfDocument();
             var page = pdf.AddPage();
             var gfx = XGraphics.FromPdfPage(page);
+
+            // Just pass font name and size
             var font = new XFont("Arial", 12);
 
             string text = System.IO.File.ReadAllText(inputPath);
@@ -86,6 +130,7 @@ namespace FileToPdfWeb.Controllers
 
             pdf.Save(outputPath);
         }
+
 
         private void ConvertImageToPdf(string inputPath, string outputPath)
         {

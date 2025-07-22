@@ -1,3 +1,5 @@
+﻿using PdfSharp.Fonts;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -11,6 +13,8 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
 }
 app.UseStaticFiles();
+GlobalFontSettings.FontResolver = CustomFontResolver.Instance;
+
 
 app.UseRouting();
 
